@@ -3,6 +3,7 @@
 
 #include "Ship.h"
 #include "CoreMinimal.h"
+#include "Asteroid.h"
 #include "GameFramework/Pawn.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -18,15 +19,26 @@ AShip::AShip()
 	// COMPONENTS
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	RootComponent = BoxComponent;
+	// Verrouille les rotations physiques sur X et Y
+    BoxComponent->BodyInstance.bLockXRotation = true;
+    BoxComponent->BodyInstance.bLockYRotation = true;
+    BoxComponent->BodyInstance.bLockZRotation = false;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(BoxComponent);
+	StaticMesh->SetSimulatePhysics(false);
+    StaticMesh->SetEnableGravity(false);
 
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
 	FloatingPawnMovement->MaxSpeed = MaxSpeed;
-	FloatingPawnMovement->Acceleration = 3000.f;
-	FloatingPawnMovement->Deceleration = 4000.f;
+	FloatingPawnMovement->Acceleration = 1000.f;
+	FloatingPawnMovement->Deceleration = 0.f;
 
+	FloatingPawnMovement->SetPlaneConstraintEnabled(true);
+	FloatingPawnMovement->SetPlaneConstraintNormal(FVector(0.f, 0.f, 1.f));
+	FloatingPawnMovement->SnapUpdatedComponentToPlane();
+
+	
 	CurrentInputVector = FVector::ZeroVector;
 
 }
@@ -35,6 +47,11 @@ AShip::AShip()
 void AShip::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentLives = MaxLives;
+
+	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AShip::OnAsteroidOverlap);
+	GetWorld()->GetTimerManager().SetTimer(ScoreTimerHandle, this, &AShip::AddScorePerSecond, 1.0, true);
 	
 }
 
@@ -94,3 +111,67 @@ void AShip::Fire()
 {
 	
 }
+
+
+void AShip::OnAsteroidOverlap(
+	UPrimitiveComponent* OverlappedComp,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	AAsteroid* Asteroid = Cast<AAsteroid>(OtherActor);
+	if (Asteroid && bCanTakeDamage)
+	{
+		// Calcul direction opposée
+		FVector PushDirection = (GetActorLocation() - Asteroid->GetActorLocation()).GetSafeNormal();
+		float PushStrength = 3000.f;
+
+		// Déplacer le ship en conséquence
+		AddActorWorldOffset(PushDirection * PushStrength * GetWorld()->GetDeltaSeconds(), true);
+		LoseLife();
+	}
+
+	
+}
+
+void AShip::LoseLife()
+{
+	CurrentLives--;
+	bCanTakeDamage = false;
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Vie perdue ! Vies restantes: %d"), CurrentLives));
+
+	if (CurrentLives <= 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("GAME OVER"));
+		Destroy();
+		return;
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+		InvulnerabilityTimerHandle,
+		this,
+		&AShip::ResetInvulnerability,
+		InvulnerabilityTime,
+		false
+	);
+}
+
+void AShip::ResetInvulnerability()
+{
+	bCanTakeDamage = true;
+}
+
+void AShip::AddScore(int32 Amount)
+{
+	Score += Amount;
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Score: %d"), Score));
+}
+
+void AShip::AddScorePerSecond()
+{
+	AddScore(1); // +1 par seconde
+}
+

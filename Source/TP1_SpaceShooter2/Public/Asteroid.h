@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Asteroid.generated.h"
 
+class UBoxComponent;
+class UStaticMeshComponent;
+class UProjectileMovementComponent;
+
 UCLASS()
 class TP1_SPACESHOOTER2_API AAsteroid : public AActor
 {
@@ -19,8 +23,33 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	float RotationSpeed;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// COMPONENTS
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UBoxComponent* BoxComponent;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* StaticMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	// Asteroid properties
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinSpeed = 200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxSpeed = 600.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector TargetOffset = FVector::ZeroVector; // Permet de viser légèrement à côté du joueur
+
+	// Init movement
+	void InitMovement(FVector SpawnLocation, FVector PlayerLocation);
+	void SetRotationSpeed(float Speed);
 };

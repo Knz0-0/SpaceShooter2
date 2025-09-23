@@ -23,6 +23,19 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// --- Vies ---
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
+	int32 MaxLives = 3;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
+	int32 CurrentLives;
+
+	// --- Score ---
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
+	int32 Score;
+
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -34,10 +47,10 @@ public:
 
 	
 	// COMPONENTS
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBoxComponent* BoxComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(VisibleAnywhere)
@@ -47,17 +60,41 @@ public:
 	UPROPERTY(EditAnywhere, Category="Movement")
 	float MaxSpeed = 1200.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
+	bool bCanTakeDamage = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
+	float InvulnerabilityTime = 1.0f; // secondes
+
 
 	// FUNCTIONS
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Fire();
+	
+	UFUNCTION()
+	void OnAsteroidOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult
+	);
+
+	void LoseLife();
+	void ResetInvulnerability();
+	void AddScore(int32 Ammount);
+	void AddScorePerSecond();
 
 private:
 
 	FVector CurrentInputVector;
 	float InputForward = 0.f;
 	float InputRight = 0.f;
+	
+	FTimerHandle ScoreTimerHandle;
+	FTimerHandle InvulnerabilityTimerHandle;
 
 
 };
