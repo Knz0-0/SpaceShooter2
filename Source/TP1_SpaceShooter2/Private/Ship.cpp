@@ -32,7 +32,7 @@ AShip::AShip()
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("FloatingPawnMovement"));
 	FloatingPawnMovement->MaxSpeed = MaxSpeed;
 	FloatingPawnMovement->Acceleration = 1000.f;
-	FloatingPawnMovement->Deceleration = 0.f;
+	FloatingPawnMovement->Deceleration = 1000.f;
 
 	FloatingPawnMovement->SetPlaneConstraintEnabled(true);
 	FloatingPawnMovement->SetPlaneConstraintNormal(FVector(0.f, 0.f, 1.f));
@@ -122,15 +122,19 @@ void AShip::OnAsteroidOverlap(
 	const FHitResult& SweepResult)
 {
 	AAsteroid* Asteroid = Cast<AAsteroid>(OtherActor);
-	if (Asteroid && bCanTakeDamage)
+	if (Asteroid)
 	{
 		// Calcul direction opposée
 		FVector PushDirection = (GetActorLocation() - Asteroid->GetActorLocation()).GetSafeNormal();
-		float PushStrength = 3000.f;
+		float PushStrength = 2000.f;
 
 		// Déplacer le ship en conséquence
 		AddActorWorldOffset(PushDirection * PushStrength * GetWorld()->GetDeltaSeconds(), true);
-		LoseLife();
+		if (bCanTakeDamage)
+		{
+			LoseLife();
+		}
+		
 	}
 
 	
