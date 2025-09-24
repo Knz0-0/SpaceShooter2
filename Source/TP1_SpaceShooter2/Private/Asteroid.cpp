@@ -3,6 +3,7 @@
 
 #include "Asteroid.h"
 
+#include "Ship.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"

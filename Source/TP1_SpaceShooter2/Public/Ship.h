@@ -7,7 +7,8 @@
 #include "Ship.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, int32, MaxHealth, int32, CurrentHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, MaxHealth, float, CurrentHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, int32, Score);
 
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -26,20 +27,24 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// --- Vies ---
+	// --- Health ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	int32 MaxLives = 5;
+	float MaxHealth = 5;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
-	int32 CurrentLives = 5;
+	float CurrentHealth = 5;
 
-	// Delegate qu'on pourra écouter en Blueprint
-	UPROPERTY(BlueprintAssignable, Category="Events")
+	// Delegates
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
 	FOnHealthChanged OnHealthChanged;
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Events")
+	FOnScoreChanged OnScoreChanged;
+
 	// --- Score ---
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
-	int32 Score;
+	UPROPERTY(BlueprintReadOnly, Category="Stats")
+	int32 Score = 0;
+
 
 	
 
@@ -96,6 +101,7 @@ public:
 	void ResetInvulnerability();
 	void AddScore(int32 Ammount);
 	void AddScorePerSecond();
+
 
 private:
 

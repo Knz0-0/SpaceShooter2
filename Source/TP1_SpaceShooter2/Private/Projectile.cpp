@@ -53,7 +53,6 @@ void AProjectile::Tick(float DeltaTime)
 void AProjectile::OnOverlap(AActor* MyActor, AActor* OtherActor)
 {
 	if (auto Asteroid = Cast<AAsteroid>(OtherActor)) {
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Projectile hit Asteroid"));
 		Asteroid->LoseHealth();
 		Destroy();
 	}

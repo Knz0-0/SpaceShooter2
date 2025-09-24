@@ -51,6 +51,9 @@ void AShip::BeginPlay()
 
 	//CurrentLives = MaxLives;
 
+	SetActorHiddenInGame(false);
+
+
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AShip::OnAsteroidOverlap);
 	GetWorld()->GetTimerManager().SetTimer(ScoreTimerHandle, this, &AShip::AddScorePerSecond, 1.0, true);
 	
@@ -122,12 +125,7 @@ void AShip::Fire()
 		GetWorld()->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 	}
 
-	GEngine->AddOnScreenDebugMessage(
-			-1,                 // Key: Unique integer key to prevent duplicate messages. -1 means no key, so it won't prevent duplicates.
-			1.0f,               // TimeToDisplay: How long the message will be displayed in seconds.
-			FColor::Yellow,     // DisplayColor: The color of the text.
-			TEXT("FIRE!") // DebugMessage: The message to display.
-		);}
+}
 
 
 
@@ -160,15 +158,12 @@ void AShip::OnAsteroidOverlap(
 
 void AShip::LoseLife()
 {
-	CurrentLives--;
+	CurrentHealth--;
 	bCanTakeDamage = false;
 
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Max Lives: %d"), MaxLives));
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Current Lives: %d"), CurrentLives));
-
-
+	
 	// On notifie les listeners (HUD, UI, etc.)
-	OnHealthChanged.Broadcast(MaxLives, CurrentLives);
+	OnHealthChanged.Broadcast(MaxHealth, CurrentHealth);
 
 	
 	// Invulnerability
@@ -179,6 +174,11 @@ void AShip::LoseLife()
 		InvulnerabilityTime,
 		false
 	);
+
+	if (CurrentHealth <= 0)
+	{
+		SetActorHiddenInGame(true);
+	}
 }
 
 void AShip::ResetInvulnerability()
@@ -189,10 +189,13 @@ void AShip::ResetInvulnerability()
 void AShip::AddScore(int32 Amount)
 {
 	Score += Amount;
+	OnScoreChanged.Broadcast(Score);
 }
 
 void AShip::AddScorePerSecond()
 {
 	AddScore(10);
 }
+
+
 
