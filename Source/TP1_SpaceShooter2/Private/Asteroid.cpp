@@ -16,6 +16,8 @@ AAsteroid::AAsteroid()
 
 	// COMPONENTS
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
+	BoxComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	BoxComponent->SetNotifyRigidBodyCollision(true);
 	RootComponent = BoxComponent;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
@@ -28,6 +30,7 @@ AAsteroid::AAsteroid()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
+	
 
 
 }

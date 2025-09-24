@@ -66,6 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
 	float InvulnerabilityTime = 1.0f; // secondes
 
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TSubclassOf<class AProjectile> ProjectileClass;
+
 
 	// FUNCTIONS
 	void MoveForward(float Value);

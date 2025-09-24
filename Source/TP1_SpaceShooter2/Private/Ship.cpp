@@ -4,6 +4,7 @@
 #include "Ship.h"
 #include "CoreMinimal.h"
 #include "Asteroid.h"
+#include "Projectile.h"
 #include "GameFramework/Pawn.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -109,8 +110,25 @@ void AShip::MoveRight(float Value)
 
 void AShip::Fire()
 {
-	
-}
+	if (ProjectileClass) // tu définis ProjectileClass = TSubclassOf<AProjectile> exposé dans ton .h
+	{
+		FVector MuzzleLocation = GetActorLocation() + GetActorForwardVector() * 100.f; 
+		FRotator MuzzleRotation = GetActorRotation();
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		GetWorld()->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+	}
+
+	GEngine->AddOnScreenDebugMessage(
+			-1,                 // Key: Unique integer key to prevent duplicate messages. -1 means no key, so it won't prevent duplicates.
+			1.0f,               // TimeToDisplay: How long the message will be displayed in seconds.
+			FColor::Yellow,     // DisplayColor: The color of the text.
+			TEXT("FIRE!") // DebugMessage: The message to display.
+		);}
+
 
 
 void AShip::OnAsteroidOverlap(
