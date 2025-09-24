@@ -15,7 +15,6 @@ AProjectile::AProjectile()
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	CollisionComponent->InitSphereRadius(15.0f);
 	CollisionComponent->SetCollisionProfileName("BlockAllDynamic");
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 	RootComponent = CollisionComponent;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
@@ -36,7 +35,8 @@ AProjectile::AProjectile()
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+	this->OnActorBeginOverlap.AddDynamic(this, &AProjectile::OnOverlap);
+
 
 	
 }
@@ -48,18 +48,13 @@ void AProjectile::Tick(float DeltaTime)
 
 }
 
-void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-					   FVector NormalImpulse, const FHitResult& Hit)
+
+
+void AProjectile::OnOverlap(AActor* MyActor, AActor* OtherActor)
 {
-	if (!OtherActor || OtherActor == this) return;
-
-	AAsteroid* Ast = Cast<AAsteroid>(OtherActor);
-	if (Ast)
-	{
-		// debug
+	if (auto Asteroid = Cast<AAsteroid>(OtherActor)) {
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Projectile hit Asteroid"));
-
-		Ast->Destroy();
-		Destroy(); // détruit le projectile
+		Asteroid->LoseHealth();
+		Destroy();
 	}
 }

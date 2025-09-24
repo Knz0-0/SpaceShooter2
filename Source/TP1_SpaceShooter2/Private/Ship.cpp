@@ -49,7 +49,7 @@ void AShip::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentLives = MaxLives;
+	//CurrentLives = MaxLives;
 
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &AShip::OnAsteroidOverlap);
 	GetWorld()->GetTimerManager().SetTimer(ScoreTimerHandle, this, &AShip::AddScorePerSecond, 1.0, true);
@@ -163,15 +163,15 @@ void AShip::LoseLife()
 	CurrentLives--;
 	bCanTakeDamage = false;
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Vie perdue ! Vies restantes: %d"), CurrentLives));
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Max Lives: %d"), MaxLives));
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Current Lives: %d"), CurrentLives));
 
-	if (CurrentLives <= 0)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("GAME OVER"));
-		Destroy();
-		return;
-	}
 
+	// On notifie les listeners (HUD, UI, etc.)
+	OnHealthChanged.Broadcast(MaxLives, CurrentLives);
+
+	
+	// Invulnerability
 	GetWorld()->GetTimerManager().SetTimer(
 		InvulnerabilityTimerHandle,
 		this,
@@ -189,11 +189,10 @@ void AShip::ResetInvulnerability()
 void AShip::AddScore(int32 Amount)
 {
 	Score += Amount;
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("Score: %d"), Score));
 }
 
 void AShip::AddScorePerSecond()
 {
-	AddScore(1); // +1 par seconde
+	AddScore(10);
 }
 

@@ -49,7 +49,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector TargetOffset = FVector::ZeroVector; // Permet de viser légèrement à côté du joueur
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int AsteroidHealth;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* AsteroidMaterial;
+
 	// Init movement
 	void InitMovement(FVector SpawnLocation, FVector PlayerLocation);
 	void SetRotationSpeed(float Speed);
+
+	// Functions
+	void LoseHealth();
 };

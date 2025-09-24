@@ -6,6 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "Ship.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, int32, MaxHealth, int32, CurrentHealth);
+
 class UBoxComponent;
 class UStaticMeshComponent;
 class UFloatingPawnMovement;
@@ -25,10 +28,14 @@ protected:
 
 	// --- Vies ---
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	int32 MaxLives = 3;
+	int32 MaxLives = 5;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")
-	int32 CurrentLives;
+	int32 CurrentLives = 5;
+
+	// Delegate qu'on pourra écouter en Blueprint
+	UPROPERTY(BlueprintAssignable, Category="Events")
+	FOnHealthChanged OnHealthChanged;
 
 	// --- Score ---
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Stats")

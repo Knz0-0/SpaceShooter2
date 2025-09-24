@@ -34,10 +34,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UProjectileMovementComponent* ProjectileMovementComponent;
+	
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor,
-			   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-			   const FHitResult& Hit);
+	void OnOverlap(AActor* MyActor, AActor* OtherActor);
 
 };

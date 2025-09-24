@@ -31,7 +31,7 @@ AAsteroid::AAsteroid()
 	ProjectileMovementComponent->bShouldBounce = false;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 	
-
+	AsteroidHealth = FMath::RandRange(3, 5);
 
 }
 
@@ -39,6 +39,8 @@ AAsteroid::AAsteroid()
 void AAsteroid::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AsteroidMaterial = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
 	
 }
 
@@ -77,5 +79,30 @@ void AAsteroid::InitMovement(FVector SpawnLocation, FVector PlayerLocation)
 void AAsteroid::SetRotationSpeed(float Speed)
 {
 	RotationSpeed = Speed;
+}
+
+void AAsteroid::LoseHealth()
+{
+	AsteroidHealth--;
+
+	if (AsteroidMaterial)
+	{
+		AsteroidMaterial->SetVectorParameterValue("Color", FLinearColor::Red);
+
+		// remettre la couleur d'origine après 0.2s
+		FTimerHandle TempHandle;
+		GetWorld()->GetTimerManager().SetTimer(TempHandle, [this]()
+		{
+			if (AsteroidMaterial)
+			{
+				AsteroidMaterial->SetVectorParameterValue("Color", FLinearColor::White);
+			}
+		}, 0.2f, false);
+	}
+	
+	if (AsteroidHealth <= 0)
+	{
+		Destroy();
+	}
 }
 
