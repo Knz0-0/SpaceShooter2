@@ -102,6 +102,8 @@ public:
 	void AddScore(int32 Ammount);
 	void AddScorePerSecond();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void Die();
 
 private:
 

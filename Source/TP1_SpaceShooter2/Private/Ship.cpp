@@ -178,6 +178,7 @@ void AShip::LoseLife()
 	if (CurrentHealth <= 0)
 	{
 		SetActorHiddenInGame(true);
+		Die();
 	}
 }
 
@@ -195,6 +196,12 @@ void AShip::AddScore(int32 Amount)
 void AShip::AddScorePerSecond()
 {
 	AddScore(10);
+}
+
+
+
+void AShip::Die_Implementation()
+{
 }
 
 
